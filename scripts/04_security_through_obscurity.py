@@ -96,11 +96,13 @@ def shift_name(letters, number):
 
     return result
 
+
 def shift_letter(letter, number):
     alphabet = 'abcdefghijklmnopqrstuvwxyz'
     letter_position = alphabet.find(letter)
     new_position = (letter_position + number) % len(alphabet)
     return alphabet[new_position]
+
 
 def extract_shifted_name(code):
     sector_id = extract_sector_id(code)
@@ -108,6 +110,7 @@ def extract_shifted_name(code):
 
     new_name = shift_name(letters, sector_id)
     return new_name
+
 
 def sum_sector_values(code_list):
     acum = 0

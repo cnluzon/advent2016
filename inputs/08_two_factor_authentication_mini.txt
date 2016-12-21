@@ -1,0 +1,6 @@
+rect 4x1
+rotate row y=0 by 5
+rotate column x=7 by 1
+rect 4x1
+rotate row y=0 by 10
+rotate column x=42 by 2
