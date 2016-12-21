@@ -1,6 +1,4 @@
 import argparse
-import time
-import hashlib
 import re
 
 """
