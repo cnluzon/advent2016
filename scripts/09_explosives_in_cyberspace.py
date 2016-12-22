@@ -45,6 +45,35 @@ For example:
 What is the decompressed length of the file (your puzzle input)? Don't count
 whitespace.
 
+----
+Part two:
+
+Apparently, the file actually uses version two of the format.
+
+In version two, the only difference is that markers within decompressed data
+are decompressed. This, the documentation explains, provides much more
+substantial compression capabilities, allowing many-gigabyte files to be stored
+in only a few kilobytes.
+
+For example:
+
+    (3x3)XYZ still becomes XYZXYZXYZ, as the decompressed section contains
+        no markers.
+    X(8x2)(3x3)ABCY becomes XABCABCABCABCABCABCY, because the decompressed
+        data from the (8x2) marker is then further decompressed, thus triggering
+        the (3x3) marker twice for a total of six ABC sequences.
+
+    (27x12)(20x12)(13x14)(7x10)(1x12)A decompresses into a string of A repeated
+    241920 times.
+
+    (25x3)(3x3)ABC(2x3)XY(5x2)PQRSTX(18x9)(3x2)TWO(5x7)SEVEN becomes 445
+    characters long.
+
+Unfortunately, the computer you brought probably doesn't have enough memory to
+actually decompress the file; you'll have to come up with another way to get
+its decompressed length.
+
+What is the decompressed length of the file using this improved format?
 
 """
 
@@ -53,12 +82,29 @@ def parse_input(fi):
     return fi.readline().rstrip()
 
 
+def decompress_v2(line):
+    i = 0
+    size = 0
+
+    while i < len(line):
+        marker = marker_ahead(line, i)
+        if marker:
+            i = skip_marker(line, i)
+            new_substring = line[i:i+marker[0]]
+            size += marker[1] * decompress_v2(new_substring)
+            i += len(new_substring)
+        else:
+            size +=1
+            i += 1
+
+    return size
+
+
 def decompress(line):
     decompressed_line = ''
     i = 0
     while i < len(line):
         marker = marker_ahead(line, i)
-        print marker
         if marker:
             length = marker[0]
             repeats = marker[1]
@@ -66,12 +112,13 @@ def decompress(line):
 
             decompressed_substring = line[i:i+length]*repeats
             decompressed_line += decompressed_substring
-            i += length            
+            i += length
         else:
             decompressed_line += line[i]
             i += 1
 
     return decompressed_line
+
 
 def skip_marker(line, index):
     if line[index] != '(':
@@ -87,9 +134,6 @@ def skip_marker(line, index):
 
     return new_index
 
-    # remainder = line[index:]
-    # remainder =  remainder[0:remainder.find(')')+1]
-    # return index + len(remainder)
 
 def marker_ahead(line, index):
     remainder = line[index:]
@@ -101,6 +145,9 @@ def marker_ahead(line, index):
 
     return None
 
+
+def compute_compression_percentage_reduction(size_compressed, size_decompressed):
+    return (size_decompressed - size_compressed)*100/float(size_decompressed)
 
 if __name__ == "__main__":
 
@@ -115,16 +162,26 @@ if __name__ == "__main__":
     compressed_line = parse_input(fi)
     fi.close()
 
-    # compressed_line = "X(8x2)(3x3)ABCY"
-
     decompressed_line = decompress(compressed_line)
-    compression_percentage = (len(decompressed_line)-len(compressed_line))/float(len(decompressed_line))
+    decompressed_size_v2 = decompress_v2(compressed_line)
 
-    #print compressed_line
-    #print decompressed_line
+    compression_percentage = compute_compression_percentage_reduction(
+        len(compressed_line),
+        len(decompressed_line))
+
+    compression_percentage_v2 = compute_compression_percentage_reduction(
+        len(compressed_line),
+        decompressed_size_v2)
+
 
     print "Decompressed line has length {} (from {} compressed).".format(
         len(decompressed_line), len(compressed_line))
 
-    print "\nExperimental algorithm reduced the string on a {}%".format(
+    print "Decompressed line v2 has length {} (from {} compressed).".format(
+        decompressed_size_v2, len(compressed_line))
+
+    print "\nExperimental algorithm reduced the string on a {:.5f} %".format(
         compression_percentage)
+
+    print "Experimental algorithm v2 reduced the string on a {:.5f} %".format(
+        compression_percentage_v2)
