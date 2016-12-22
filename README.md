@@ -12,4 +12,6 @@ Currently solved:
 6. Day 6: Signals and noise.
 7. Day 7: Internet Protocol Version 7.
 8. Day 8: Two factor authentication.
+9. Day 9: Explosives in cyberspace.
+10. Day 10: Balance bots.
 
